@@ -29,6 +29,7 @@ class Maze:
         meta_info = json.load(open(maze_matrix_path.joinpath("maze_meta_info.json")))
         # <maze_width> and <maze_height> denote the number of tiles make up the
         # height and width of the map.
+        self.name = str(meta_info["world_name"])
         self.maze_width = int(meta_info["maze_width"])
         self.maze_height = int(meta_info["maze_height"])
         # <sq_tile_size> denotes the pixel height/width of a tile.

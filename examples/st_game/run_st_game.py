@@ -4,7 +4,9 @@
 
 import asyncio
 import fire
+import datetime
 
+from examples.st_game.maze_environment import MazeEnvironment
 from examples.st_game.stanford_town import StanfordTown
 from examples.st_game.roles.st_role import STRole
 from examples.st_game.utils.mg_ga_transform import get_reverie_meta, write_curr_sim_code, write_curr_step
@@ -43,7 +45,11 @@ async def startup(idea: str,
     write_curr_sim_code({"sim_code": sim_code})
     write_curr_step({"step": reverie_meta.get("step", 0)})
 
-    town = StanfordTown()
+    town = StanfordTown(sim_path=sim_path, 
+                        environment=MazeEnvironment(
+                            time_delta=datetime.timedelta(seconds = reverie_meta.get("sec_per_step")),
+                            curr_time=datetime.datetime.strptime(reverie_meta.get("curr_time"), "%B %d, %Y, %H:%M:%S")
+                        ))
     town.wakeup_roles(roles)
 
     town.invest(investment)

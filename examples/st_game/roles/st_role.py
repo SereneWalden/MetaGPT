@@ -120,6 +120,10 @@ class STRole(Role):
     @property
     def memory(self):
         return self._rc.memory
+    
+    @property
+    def maze(self):
+        return self._rc.env.maze
 
     def load_from(self, folder: Path):
         """
@@ -130,8 +134,30 @@ class STRole(Role):
     def save_into(self, folder: Path):
         """
         save role data from `storage/{simulation_name}/personas/{role_name}
+        INPUT: 
+        folder: The folder where we wil be saving our persona's state. 
+        OUTPUT: 
+        None
         """
-        pass
+        # Spatial memory contains a tree in a json format. 
+        # e.g., {"double studio": 
+        #         {"double studio": 
+        #           {"bedroom 2": 
+        #             ["painting", "easel", "closet", "bed"]}}}
+        f_s_mem = folder.joinpath("spatial_memory.json")
+        self.s_mem.save(str(f_s_mem))
+        
+        # Associative memory contains a csv with the following rows: 
+        # [event.type, event.created, event.expiration, s, p, o]
+        # e.g., event,2022-10-23 00:00:00,,Isabella Rodriguez,is,idle
+        f_a_mem = folder.joinpath("associative_memory")
+        self.a_mem.save(str(f_a_mem))
+
+        # Scratch contains non-permanent data associated with the persona. When 
+        # it is saved, it takes a json form. When we load it, we move the values
+        # to Python variables. 
+        f_scratch = folder.joinpath("scratch.json")
+        self.scratch.save(str(f_scratch))
 
     async def _observe(self) -> int:
         if not self._rc.env:

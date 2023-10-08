@@ -3,8 +3,10 @@
 # @Desc   : BasicMemory,AgentMemory实现
 
 import json
+import os
 from datetime import datetime
 from dataclasses import dataclass
+from pathlib import Path
 
 from metagpt.memory.memory import Memory
 from metagpt.schema import Message
@@ -133,21 +135,29 @@ class AgentMemory(Memory):
         这里添加一个路径即可
         TODO 这里在存储时候进行倒序存储，之后需要验证（test_memory通过）
         """
+        save_path = Path(memory_saved)
+        if not save_path.exists():
+            os.makedirs(memory_saved, exist_ok=True)
+        
         memory_json = dict()
         for i in range(len(self.storage)):
             memory_node = self.storage[len(self.storage)-i-1]
             memory_node = memory_node.save_to_dict()
             memory_json.update(memory_node)
-        with open(memory_saved + "/nodes.json", "w") as outfile:
+        
+        node_path = Path(memory_saved).joinpath("nodes.json")
+        with open(str(node_path), "w") as outfile:
             json.dump(memory_json, outfile)
 
-        with open(memory_saved + "/embeddings.json", "w") as outfile:
+        embd_path = Path(memory_saved).joinpath("embeddings.json")
+        with open(str(embd_path), "w") as outfile:
             json.dump(self.embeddings, outfile)
 
         strength_json = dict()
         strength_json["kw_strength_event"] = self.kw_strength_event
         strength_json["kw_strength_thought"] = self.kw_strength_thought
-        with open(memory_saved + "/kw_strength.json", "w") as outfile:
+        strength_path = Path(memory_saved).joinpath("kw_strength.json")
+        with open(str(strength_path), "w") as outfile:
             json.dump(strength_json, outfile)
 
     def load(self, memory_saved: str):
